@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4.1 Fact-Checking AI - Assignment Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        h1, h2, h3, .serif { font-family: 'Merriweather', serif; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 280px; }
+        }
+        .reveal-content { display: none; }
+        .reveal-content.active { display: block; animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
+    </style>
+
+    <!-- Chosen Palette: Slate Backgrounds (#f8fafc, #f1f5f9), Navy Text (#0f172a, #1e293b), Royal Blue Accents (#2563eb), Emerald Success (#10b981), Amber Warnings (#f59e0b) -->
+    <!-- Application Structure Plan: The SPA is structured as an interactive syllabus/dashboard for the "4.1 Fact-Checking AI" assignment. It opens with the Assignment Brief & Rationale (incorporating syllabus data), followed by a visual breakdown of grading and core competencies. The core interaction is the "Process Explorer" tabs, breaking the assignment down chronologically. Finally, to address the specific topic output requested, there is an "Interactive Fact-Checking Sandbox" demonstrating how the final deliverable should look, using the user's suggested NYC Housing topic as the exemplar. This structure guides the student from "Why" to "How" to "Example Output". -->
+    <!-- Visualization & Content Choices:
+        1. Doughnut Chart (Chart.js): Shows assignment weight (15%) relative to the course. Goal: Inform. Interactive tooltips.
+        2. Radar Chart (Chart.js): Maps the 4 core media skills (Verify, Cross-check, Recognize, Maintain). Goal: Organize/Inform.
+        3. Tabbed Interface (Vanilla JS): Breaks down the assignment instructions (Choose -> Generate -> Fact-Check). Goal: Organize/Process flow.
+        4. Accordion/Reveal Cards (Vanilla JS): The Fact-Checking Sandbox. Goal: Engage/Teach by example. Users click AI claims to reveal the factual analysis, source, and APA citation. No SVG/Mermaid used.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+</head>
+<body class="antialiased text-slate-800">
+
+    <nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="font-bold tracking-wider">MCM2651-0 <span class="font-light text-slate-400 hidden sm:inline">| Media Professionalism</span></div>
+            <div class="flex gap-4 text-sm font-medium">
+                <a href="#overview" class="hover:text-blue-400 transition">Overview</a>
+                <a href="#skills" class="hover:text-blue-400 transition">Metrics</a>
+                <a href="#process" class="hover:text-blue-400 transition">Process</a>
+                <a href="#sandbox" class="text-amber-400 hover:text-amber-300 transition">Examples</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="bg-blue-50 border-b border-blue-100 py-12 lg:py-20">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="inline-block bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full mb-4">Assignment 4.1</div>
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4 leading-tight">Fact-Checking AI</h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mb-8">Artificial Intelligence tools predict text based on patterns; they do not "know" facts. As a future media professional, your credibility depends on your ability to verify information and maintain research integrity.</p>
+
+            <div class="flex flex-wrap gap-6 items-center bg-white p-4 rounded-lg shadow-sm border border-slate-200 inline-flex">
+                <div>
+                    <span class="block text-xs text-slate-400 uppercase tracking-wide font-semibold">Due Date</span>
+                    <span class="block text-sm font-medium text-slate-800">Wed, Apr 29, 2026 @ 11:59 PM EDT</span>
+                </div>
+                <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
+                <div>
+                    <span class="block text-xs text-slate-400 uppercase tracking-wide font-semibold">Weight</span>
+                    <span class="block text-sm font-medium text-slate-800">15% of Final Grade</span>
+                </div>
+                <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
+                <div>
+                    <span class="block text-xs text-slate-400 uppercase tracking-wide font-semibold">Format</span>
+                    <span class="block text-sm font-medium text-slate-800">900-1000 Word Analysis</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-12 space-y-20">
+
+        <section id="overview">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">The Assignment Landscape</h2>
+                <p class="text-slate-600 max-w-3xl">This section breaks down the rationale behind the assignment and how it fits into your overall course evaluation. We are moving beyond simply generating content to actively investigating it.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-blue-500">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">The Rationale</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            AI tools are powerful, but they are not journalists. They can sound confident while being completely wrong. This assignment is <strong>not about catching AI in a mistake</strong>. It is about training your instincts as a responsible researcher. The future of media will include AI, and it is your responsibility to ensure it also includes accuracy.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">Alternate Option (No AI)</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            If you are opposed to using LLMs, write your own 900-1000 word paper. To simulate the fact-checking aspect, write the paper first without researching, and then fact-check your own generated text against credible sources.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-center font-bold text-slate-700 mb-4">Course Grade Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="gradeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="bg-slate-900 text-white rounded-2xl p-8 md:p-12 shadow-lg">
+            <div class="mb-8 text-center">
+                <h2 class="text-3xl font-bold mb-4">Core Competencies Targeted</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">Your credibility as a media professional relies on mastering these four pillars of research integrity. This assignment tests your balance across all four areas.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="chart-container">
+                    <canvas id="skillsChart"></canvas>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4">
+                        <div class="text-2xl mt-1">&#128269;</div>
+                        <div>
+                            <h4 class="font-bold text-lg text-blue-300">Verify Information</h4>
+                            <p class="text-sm text-slate-300">Tracking down primary data to confirm LLM-generated statistics and historical claims.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="text-2xl mt-1">&#128225;</div>
+                        <div>
+                            <h4 class="font-bold text-lg text-blue-300">Cross-Check Sources</h4>
+                            <p class="text-sm text-slate-300">Ensuring multiple independent, credible outlets agree on the core facts.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="text-2xl mt-1">&#9888;&#65039;</div>
+                        <div>
+                            <h4 class="font-bold text-lg text-blue-300">Recognize Inaccuracies</h4>
+                            <p class="text-sm text-slate-300">Identifying "hallucinations," logical leaps, and confidently stated falsehoods.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="text-2xl mt-1">&#9878;&#65039;</div>
+                        <div>
+                            <h4 class="font-bold text-lg text-blue-300">Maintain Integrity</h4>
+                            <p class="text-sm text-slate-300">Properly attributing actual facts to real humans and institutions via APA citations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="process">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">The Assignment Process</h2>
+                <p class="text-slate-600 max-w-3xl">Follow these steps to complete the assignment. Click through the tabs to review the specific actions required for each phase of your investigation.</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="flex border-b border-slate-200 overflow-x-auto" id="processTabs">
+                    <button class="tab-btn active px-6 py-4 text-sm font-medium text-slate-600 hover:bg-slate-50 transition whitespace-nowrap focus:outline-none" data-target="step1">1. Generation</button>
+                    <button class="tab-btn px-6 py-4 text-sm font-medium text-slate-600 hover:bg-slate-50 transition whitespace-nowrap focus:outline-none" data-target="step2">2. Investigation</button>
+                    <button class="tab-btn px-6 py-4 text-sm font-medium text-slate-600 hover:bg-slate-50 transition whitespace-nowrap focus:outline-none" data-target="step3">3. Formatting</button>
+                </div>
+
+                <div class="p-8 min-h-[250px]">
+                    <div id="step1" class="tab-content block animate-[fadeIn_0.3s_ease-in-out]">
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">&#129302; Phase 1: Generate the Text</h3>
+                        <ul class="list-disc pl-5 space-y-2 text-slate-600">
+                            <li>Choose a research topic that is of interest to you or that you know well.</li>
+                            <li>Use an LLM (like ChatGPT, Gemini, or Claude).</li>
+                            <li>Prompt the AI to generate a paper that is exactly <strong>900-1000 words</strong> long on your chosen topic.</li>
+                            <li>Save this raw text; it is the raw material you will be investigating.</li>
+                        </ul>
+                    </div>
+
+                    <div id="step2" class="tab-content hidden animate-[fadeIn_0.3s_ease-in-out]">
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">&#128270; Phase 2: The Fact-Check</h3>
+                        <ul class="list-disc pl-5 space-y-2 text-slate-600">
+                            <li>Read through the AI-generated paper critically.</li>
+                            <li>Isolate the strongest factual claims made by the AI (statistics, historical events, causal links).</li>
+                            <li>Perform independent research using academic journals, recognized news organizations, or government databases to verify these claims.</li>
+                            <li>Determine if the AI was accurate, partially accurate, entirely false, or lacking critical nuance.</li>
+                        </ul>
+                    </div>
+
+                    <div id="step3" class="tab-content hidden animate-[fadeIn_0.3s_ease-in-out]">
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">&#128221; Phase 3: Final Deliverable</h3>
+                        <ul class="list-disc pl-5 space-y-2 text-slate-600">
+                            <li>Extract the factual claims directly from the AI text.</li>
+                            <li>Provide 1 highly credible source per claim.</li>
+                            <li>Format all sources using <strong>proper APA citations</strong>.</li>
+                            <li>Write a 2-3 sentence analysis for each claim detailing your findings (clear, college-level writing).</li>
+                            <li>Submit your document by Wednesday, April 29, 2026.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sandbox" class="border-t border-slate-200 pt-16">
+            <div class="mb-10 text-center">
+                <span class="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wider">Example Output Format</span>
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Interactive Fact-Checking Sandbox</h2>
+                <p class="text-slate-600 max-w-3xl mx-auto">This section demonstrates the exact format required for your final submission. It uses an example topic to show how to extract an AI claim, find a source, cite it, and provide analytical context. Click on the AI Claims below to investigate them.</p>
+
+                <div class="mt-6 inline-block bg-white border border-slate-200 rounded-lg p-4 shadow-sm text-left">
+                    <span class="text-xs text-slate-400 font-bold uppercase tracking-wide block mb-1">Example Topic Wording</span>
+                    <span class="font-serif text-lg font-bold text-slate-800">"How housing instability and substandard housing contribute to mortality in New York City."</span>
+                </div>
+            </div>
+
+            <div class="space-y-4" id="claims-container">
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center text-sm border-t-4 border-blue-600">
+        <p>MCM2651-0 | Term C202604 | Section 02</p>
+        <p class="mt-2">Remember: Up Next is the Professionalism reflection assignment due Friday.</p>
+    </footer>
+
+    <script>
+        const gradeCtx = document.getElementById('gradeChart').getContext('2d');
+        new Chart(gradeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Assignment 4.1 (Fact-Checking)', 'Other Coursework'],
+                datasets: [{
+                    data: [15, 85],
+                    backgroundColor: ['#2563eb', '#e2e8f0'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: 'Inter' } } },
+                    tooltip: {
+                        callbacks: { label: function(context) { return context.label + ': ' + context.raw + '%'; } }
+                    }
+                }
+            }
+        });
+
+        const skillsCtx = document.getElementById('skillsChart').getContext('2d');
+        new Chart(skillsCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Verify Info', 'Cross-Check', 'Recognize Errors', 'Maintain Integrity'],
+                datasets: [{
+                    label: 'Target Skill Level',
+                    data: [100, 100, 90, 100],
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#3b82f6',
+                    pointHoverBackgroundColor: '#3b82f6',
+                    pointHoverBorderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        pointLabels: { color: '#cbd5e1', font: { family: 'Inter', size: 12 } },
+                        ticks: { display: false, min: 0, max: 100 }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => {
+                    c.classList.remove('block');
+                    c.classList.add('hidden');
+                });
+
+                btn.classList.add('active');
+                const targetId = btn.getAttribute('data-target');
+                document.getElementById(targetId).classList.remove('hidden');
+                document.getElementById(targetId).classList.add('block');
+            });
+        });
+
+        const mockClaims = [
+            {
+                id: 1,
+                aiClaim: "In New York City, individuals facing eviction have a 30% higher mortality rate due to cardiovascular failure within the first year of displacement.",
+                verdict: "False / Hallucinated Statistic",
+                verdictColor: "text-red-600 bg-red-100",
+                sourceName: "National Bureau of Economic Research (NBER)",
+                citation: "Collinson, R., & Reed, D. (2018). The effects of evictions on low-income households. National Bureau of Economic Research. https://doi.org/10.3386/w25440",
+                analysis: "While the AI attempted to link eviction directly to cardiovascular mortality with a specific 30% statistic, academic research does not support this exact figure. The NBER study confirms that eviction leads to severe negative health outcomes and increased hospital visits, but specific, generalized mortality percentages linked solely to cardiovascular failure within one year are an AI hallucination attempting to sound authoritative."
+            },
+            {
+                id: 2,
+                aiClaim: "The Bronx suffers from the highest asthma hospitalization rates in the country, directly caused by substandard public housing conditions such as black mold and pest infestations.",
+                verdict: "True / Supported",
+                verdictColor: "text-emerald-700 bg-emerald-100",
+                sourceName: "New York State Department of Health",
+                citation: "New York State Department of Health. (2023). Asthma Hospitalization Data by County. NYS Health Profiles. Retrieved from [NYS DOH URL]",
+                analysis: "This claim is highly accurate. Data from the NYS Department of Health confirms that Bronx county consistently ranks highest for asthma hospitalizations. Furthermore, numerous public health studies have directly correlated these high rates to environmental triggers found in aging housing infrastructure, specifically mold and pests common in poorly maintained units."
+            },
+            {
+                id: 3,
+                aiClaim: "NYC policies introduced in 2021 successfully reduced homelessness-related mortality by half through the immediate provision of permanent housing.",
+                verdict: "False / Misrepresentation",
+                verdictColor: "text-red-600 bg-red-100",
+                sourceName: "NYC Department of Health and Mental Hygiene",
+                citation: "New York City Department of Health and Mental Hygiene. (2022). Mortality among individuals experiencing homelessness in New York City. NYC.gov.",
+                analysis: "The AI's claim is overly optimistic and factually incorrect. According to the NYC DOHMH annual mortality reports, deaths among unhoused individuals actually increased during and immediately following 2021, driven heavily by the opioid crisis and exposure. No policy reduced mortality by 50% in that timeframe."
+            },
+            {
+                id: 4,
+                aiClaim: "Over 40% of residential buildings in low-income neighborhoods in Brooklyn lack adequate winter heating, leading to spikes in hypothermia fatalities among the elderly.",
+                verdict: "Partially True / Exaggerated Link",
+                verdictColor: "text-amber-600 bg-amber-100",
+                sourceName: "NYC Housing and Vacancy Survey (NYCHVS)",
+                citation: "U.S. Census Bureau & NYC Department of Housing Preservation and Development. (2021). New York City Housing and Vacancy Survey.",
+                analysis: "The AI accurately identifies heating inadequacy as a major issue; the NYCHVS data shows significant percentages of low-income renters report heating breakdowns. However, directly linking this to 'spikes in hypothermia fatalities' is a dramatic leap. While cold stress exacerbates existing conditions, direct hypothermia deaths indoors are statistically rare and usually handled individually by medical examiners, not recorded as massive neighborhood spikes."
+            },
+            {
+                id: 5,
+                aiClaim: "Life expectancy in neighborhoods with extreme rent burden (spending >50% of income on rent) is up to 7 years shorter than in affluent neighborhoods in Manhattan.",
+                verdict: "True / Supported",
+                verdictColor: "text-emerald-700 bg-emerald-100",
+                sourceName: "NYC Center for Health Equity",
+                citation: "New York City Department of Health and Mental Hygiene. (2019). Summary of Vital Statistics: Life Expectancy by Community District. Center for Health Equity.",
+                analysis: "This claim is well-supported by city data. The NYC Center for Health Equity tracks massive disparities in life expectancy across community districts. The 'rent burden' aspect is a known social determinant of health; the financial strain leaves fewer resources for medical care and nutrition, contributing heavily to this documented mortality gap."
+            },
+            {
+                id: 6,
+                aiClaim: "Lead poisoning from peeling paint in NYC apartments accounts for 15% of all pediatric neurological deaths annually.",
+                verdict: "False / Extreme Exaggeration",
+                verdictColor: "text-red-600 bg-red-100",
+                sourceName: "Centers for Disease Control and Prevention (CDC)",
+                citation: "Centers for Disease Control and Prevention. (2022). Childhood Lead Poisoning Prevention: Data and Statistics.",
+                analysis: "This is a severe AI hallucination. While lead exposure is a critical public health issue causing developmental delays, it is exceptionally rare for it to directly cause pediatric 'neurological deaths' in modern NYC, let alone account for 15% of them. The AI has taken a real risk factor and assigned a fabricated, sensationalized mortality statistic to it."
+            },
+            {
+                id: 7,
+                aiClaim: "The Right to Counsel law, providing free legal representation in eviction cases, prevented 84% of scheduled evictions for participating households, thereby stabilizing health outcomes.",
+                verdict: "True / Supported",
+                verdictColor: "text-emerald-700 bg-emerald-100",
+                sourceName: "NYC Office of Civil Justice",
+                citation: "New York City Office of Civil Justice. (2021). Universal Access to Legal Services: A Report on Year Four of Implementation in New York City.",
+                analysis: "The AI correctly cited the success rate of this specific policy. The official NYC report on the Right to Counsel program confirms that 84% of households represented by program lawyers were able to remain in their homes. By preventing displacement, this policy acts as a direct intervention stabilizing social determinants of health."
+            }
+        ];
+
+        const container = document.getElementById('claims-container');
+
+        mockClaims.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden transition-all hover:shadow-md';
+
+            const headerBtn = document.createElement('button');
+            headerBtn.className = 'w-full text-left p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 focus:outline-none focus:bg-slate-50 cursor-pointer';
+            headerBtn.innerHTML = `
+                <div class="flex-1">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">AI Claim ${index + 1}</span>
+                    <p class="font-serif text-lg text-slate-800 italic border-l-4 border-slate-300 pl-4 py-1">"${item.aiClaim}"</p>
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <span class="text-sm font-semibold text-blue-600">Investigate</span>
+                    <svg class="w-5 h-5 text-blue-600 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            `;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'reveal-content bg-slate-50 border-t border-slate-200 p-6 space-y-6';
+            contentDiv.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Verdict:</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${item.verdictColor}">${item.verdict}</span>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-2"><span class="text-lg">&#128218;</span> Credible Source & Citation</h4>
+                    <div class="bg-white p-4 rounded border border-slate-200">
+                        <p class="text-sm font-semibold text-slate-700 mb-1">${item.sourceName}</p>
+                        <p class="text-sm text-slate-600 pl-4 border-l-2 border-slate-300 hanging-indent" style="text-indent: -1rem; margin-left: 1rem;">${item.citation}</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-2"><span class="text-lg">&#128221;</span> Fact-Check Analysis</h4>
+                    <p class="text-slate-700 text-sm leading-relaxed">${item.analysis}</p>
+                </div>
+            `;
+
+            let isOpen = false;
+            headerBtn.addEventListener('click', () => {
+                isOpen = !isOpen;
+                if(isOpen) {
+                    contentDiv.classList.add('active');
+                    headerBtn.querySelector('svg').classList.add('rotate-180');
+                    headerBtn.classList.add('bg-slate-50');
+                } else {
+                    contentDiv.classList.remove('active');
+                    headerBtn.querySelector('svg').classList.remove('rotate-180');
+                    headerBtn.classList.remove('bg-slate-50');
+                }
+            });
+
+            card.appendChild(headerBtn);
+            card.appendChild(contentDiv);
+            container.appendChild(card);
+        });
+    </script>
+</body>
+</html>
